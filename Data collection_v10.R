@@ -242,8 +242,22 @@ for (i in 1:ncol(results_total)){
   }
 }
 
-write.xlsx(output, "change_scores.xlsx", rowNames=TRUE)
+for (i in 1:ncol(results_total)){
+  
+  #only continue if column is a follow up
+  #For simplicity we can assume if follow up exists, baseline will be column left of it
+  if(substrRight((colnames(results_total)[i]),2) == "FU"){
+    
+    output2 = cbind(output2,((results_total[,i] - results_total[,i-1])/results_total[,i-1]))
+    colnames(output2)[ncol(output2)] = colnames(results_total[i])
+    
+  }
+}
+
+
+write.xlsx(output, "absolute-change_scores.xlsx", rowNames=TRUE)
+write.xlsx(output2, "relative-change_scores.xlsx", rowNames=TRUE)
 
 save(output, file = "output.Rdata")
-
+save(output2, file = "output2.Rdata")
 
