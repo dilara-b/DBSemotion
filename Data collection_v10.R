@@ -177,7 +177,7 @@ for(h in 1:length(subjects_dirs)){
 
 ### Analysis----------------------------------------------------------------------------------------------------
 
-output_fields = c("1 Imp. X","1.1 Imp. X_GO error rate","1.2 Imp. X_NOGO error rate","1.3 Imp. X_GO_Time",
+output_fields = c("1 Imp. X error rate","1.1 Imp. X_GO error rate","1.2 Imp. X_NOGO error rate","1.3 Imp. X_GO_Time",
                   "2 Imp. Happy error rate","2.1 Imp. Happy_GO error rate","2.2 Imp. Happy_NOGO error rate","2.3 Imp. Happy_GO_Time",
                   "3 Imp. K error rate","3.1 Imp. K_GO error rate","3.2 Imp. K_NOGO error rate","3.3 Imp. K_GO_Time",
                   "4 Imp. Anger error rate","4.1 Imp. Anger_GO error rate","4.2 Imp. Anger_NOGO error rate","4.3 Imp. Anger_GO_Time",
