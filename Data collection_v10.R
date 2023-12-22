@@ -18,7 +18,7 @@ dict = list('el' = 'DIS', #Ekel
             'er' = 'SAS', #Trauer
             'ck' = 'NES', #neutraler Gesichtsausdruck
             'ut' = 'ANS', #Wut
-            'st' = 'AFS')#Angst
+            'st' = 'AFS') #Angst
 
 emotions = c("AFS", "ANS", "DIS", "HAS", "NES", "SAS", "SUS")
 
@@ -27,24 +27,24 @@ substrRight <- function(x, n){
   substr(x, nchar(x)-n+1, nchar(x))
 }
 
-#returns fraction of correct answers for tests 1 to 4
+#returns fraction of wrong answers for tests 1 to 4
 correct1 = function(patient,number){
   
   #convert list to dataframe
   df = patient[[number]]
   
   #calculate mean/sd response times for responses where candidate pressed space
-  response_time_mean = mean(df$response_time[df$response == "space"])
-  response_time_sd = sd(df$response_time[df$response == "space"])
+  response_time_mean = mean(df$response_time[df$response == "space" | df$response == "space "])
+  response_time_sd = sd(df$response_time[df$response == "space" | df$response == "space "])
   
   #only keep rows where response is "None" or rows where response time is >min_response_time milliseconds AND <Mean+max_sd SDs
   df = df[(df$response_time<(response_time_mean+max_sd*response_time_sd) & df$response_time > min_response_time) | df$response == "None",]
   
-  res = mean(df$correct) #fraction of correct answers, space when go-stimulus appears and none when no-go-stimulus appears 
-  res_go = mean(df$correct[df$correct_response == "space"]) #fraction of correct answers for the go stimulus
-  res_nogo = mean(df$correct[df$correct_response == "None"]) #fraction of correct answers for the no-go-stimulus
+  res = 1 - mean(df$correct) #fraction of wrong answers, space when no-go-stimulus appears and none when go-stimulus appears
+  res_go = 1 - mean(df$correct[df$correct_response == "space" | df$correct_response == "space "]) #fraction of wrong answers for the go stimulus, no answer when go
+  res_nogo = 1 - mean(df$correct[df$correct_response == "None"]) #fraction of wrong answers for the no-go-stimulus, space when no-go
   
-  res_time = mean(df$response_time[df$correct_response == "space" & df$response == "space"]) #mean response time, including only correct go-stimulus answers 
+  res_time = mean(df$response_time[(df$correct_response == "space" | df$correct_response == "space ") & (df$response == "space" | df$response == "space ")]) #mean response time, including only correct go-stimulus answers 
   
   return(c(res,res_go,res_nogo,res_time))
   
@@ -156,7 +156,7 @@ correct3 = function(patient,number){
 
 ### Setup-------------------------------------------------------------------------------------------------------
 
-setwd() #Folder including all participant folders
+setwd("~/Desktop/all") #Folder including all participant folders
 
 patients_dirs = list.dirs(getwd(),recursive = FALSE)
 patients_names = list.dirs(getwd(),recursive = FALSE, full.names = FALSE)
@@ -177,11 +177,24 @@ for(h in 1:length(patients_dirs)){
 
 ### Analysis----------------------------------------------------------------------------------------------------
 
-results_total = data.frame(matrix(NA,    # Create empty data frame
-                          nrow = 147,
-                          ncol = 0))
+output_fields = c("1 Imp. X","1.1 Imp. X_GO error rate","1.2 Imp. X_NOGO error rate","1.3 Imp. X_GO_Time",
+                  "2 Imp. Happy error rate","2.1 Imp. Happy_GO error rate","2.2 Imp. Happy_NOGO error rate","2.3 Imp. Happy_GO_Time",
+                  "3 Imp. K error rate","3.1 Imp. K_GO error rate","3.2 Imp. K_NOGO error rate","3.3 Imp. K_GO_Time",
+                  "4 Imp. Anger error rate","4.1 Imp. Anger_GO error rate","4.2 Imp. Anger_NOGO error rate","4.3 Imp. Anger_GO_Time",
+                  "impulsivity_emo_errorrate", "impulsivity_emo_go_errorrate", "impulsivity_emo_nogo_errorrate", "impulsivity_emo_time",
+                  "impulsivity_nonemo_errorrate", "impulsivity_nonemo_go_errorrate", "impulsivity_nonemo_nogo_errorrate", "impulsivity_nonemo_time",
+                  "5 FitCEmo Ges.","5.1 FitC Emo_Anger","5.2 FitC Emo_Happy","5.3 FitC Emo_Odd","5.4 FitC Emo_Equal","5.5 FitCEmo_time","5.6 FitC Emo_Anger_Time","5.7 Fitc Emo_Happy_Time","5.8 FitC Emo_Odd_Time","5.9 FitC Emo_Equal_Time",
+                  "6 FitC NonEmo","6.1 FitC NonEmo_Odd","6.2 FitC NonEmo_Equal","6.3 FitC NonEmo_time","6.4 FitC NonEmo_Odd_time","6.5 FitC NonEmo_Equal_time",
+                  "7 EmoRecog1","7.1 Afraid","7.1.1 Afraid","7.1.2 Anger","7.1.3 Disgust","7.1.4 Happy","7.1.5 Neutral","7.1.6 Sad","7.1.7 Surprise","7.2 Anger","7.2.1 Afraid","7.2.2 Anger","7.2.3 Disgust","7.2.4 Happy","7.2.5 Neutral","7.2.6 Sad","7.2.7 Surprise","7.3 Disgust","7.3.1 Afraid","7.3.2 Anger","7.3.3 Disgust","7.3.4 Happy","7.3.5 Neutral","7.3.6 Sad","7.3.7 Surprise","7.4 Happy","7.4.1 Afraid","7.4.2 Anger","7.4.3 Disgust","7.4.4 Happy","7.4.5 Neutral","7.4.6 Sad","7.4.7 Surprise","7.5 Neutral","7.5.1 Afraid","7.5.2 Anger","7.5.3 Disgust","7.5.4 Happy","7.5.5 Neutral","7.5.6 Sad","7.5.7 Surprise","7.6 Sad","7.6.1 Afraid","7.6.2 Anger","7.6.3 Disgust","7.6.4 Happy","7.6.5 Neutral","7.6.6 Sad","7.6.7 Surprise","7.7 Surprise","7.7.1 Afraid","7.7.2 Anger","7.7.3 Disgust","7.7.4 Happy","7.7.5 Neutral","7.7.6 Sad","7.7.7 Surprise",
+                  "8 N.-EmoRec",
+                  "9 EmoRecog2","9.1 Afraid","9.1.1 Afraid","9.1.2 Anger","9.1.3 Disgust","9.1.4 Happy","9.1.5 Neutral","9.1.6 Sad","9.1.7 Surprise","9.2 Anger","9.2.1 Afraid","9.2.2 Anger","9.2.3 Disgust","9.2.4 Happy","9.2.5 Neutral","9.2.6 Sad","9.2.7 Surprise","9.3 Disgust","9.3.1 Afraid","9.3.2 Anger","9.3.3 Disgust","9.3.4 Happy","9.3.5 Neutral","9.3.6 Sad","9.3.7 Surprise","9.4 Happy","9.4.1 Afraid","9.4.2 Anger","9.4.3 Disgust","9.4.4 Happy","9.4.5 Neutral","9.4.6 Sad","9.4.7 Surprise","9.5 Neutral","9.5.1 Afraid","9.5.2 Anger","9.5.3 Disgust","9.5.4 Happy","9.5.5 Neutral","9.5.6 Sad","9.5.7 Surprise","9.6 Sad","9.6.1 Afraid","9.6.2 Anger","9.6.3 Disgust","9.6.4 Happy","9.6.5 Neutral","9.6.6 Sad","9.6.7 Surprise","9.7 Surprise","9.7.1 Afraid","9.7.2 Anger","9.7.3 Disgust","9.7.4 Happy","9.7.5 Neutral","9.7.6 Sad","9.7.7 Surprise",
+                  "recog_emo_acc", "recog_afraid_acc", "recog_anger_acc", "recog_disgust_acc", "recog_happy_acc", "recog_neutral_acc", "recog_sad_acc", "recog_surprise_acc")
 
-rownames(results_total) = c("1 Imp. X","1.1 Imp. X_GO","1.2 Imp. X_NOGO","1.3 Imp. X_GO_Time","2 Imp. Happy","2.1 Imp. Happy_GO","2.2 Imp. Happy_NOGO","2.3 Imp. Happy_GO_Time","3 Imp. K","3.1 Imp. K_GO","3.2 Imp. K_NOGO","3.3 Imp. K_GO_Time","4 Imp. Anger","4.1 Imp. Anger_GO","4.2 Imp. Anger_NOGO","4.3 Imp. Anger_GO_Time","5 FitCEmo Ges.","5.1 Anger","5.2 Happy","5.3 Odd","5.4 Neutral","5.5 FitCEmo Ges._Time","5.6 Anger_Time","5.7 Happy_Time","5.8 Odd_Time","5.9 Neutral_Time","6 FitC NonEmo","6.1 FitC NonEmo_Odd","6.2 FitC NonEmo_Equal","6.3 FitC NonEmo_time","6.4 FitC NonEmo_Odd_time","6.5 FitC NonEmo_Equal_time","7 EmoRecog1","7.1 Afraid","7.1.1 Afraid","7.1.2 Anger","7.1.3 Disgust","7.1.4 Happy","7.1.5 Neutral","7.1.6 Sad","7.1.7 Surprise","7.2 Anger","7.2.1 Afraid","7.2.2 Anger","7.2.3 Disgust","7.2.4 Happy","7.2.5 Neutral","7.2.6 Sad","7.2.7 Surprise","7.3 Disgust","7.3.1 Afraid","7.3.2 Anger","7.3.3 Disgust","7.3.4 Happy","7.3.5 Neutral","7.3.6 Sad","7.3.7 Surprise","7.4 Happy","7.4.1 Afraid","7.4.2 Anger","7.4.3 Disgust","7.4.4 Happy","7.4.5 Neutral","7.4.6 Sad","7.4.7 Surprise","7.5 Neutral","7.5.1 Afraid","7.5.2 Anger","7.5.3 Disgust","7.5.4 Happy","7.5.5 Neutral","7.5.6 Sad","7.5.7 Surprise","7.6 Sad","7.6.1 Afraid","7.6.2 Anger","7.6.3 Disgust","7.6.4 Happy","7.6.5 Neutral","7.6.6 Sad","7.6.7 Surprise","7.7 Surprise","7.7.1 Afraid","7.7.2 Anger","7.7.3 Disgust","7.7.4 Happy","7.7.5 Neutral","7.7.6 Sad","7.7.7 Surprise","8 N.-EmoRec","9 EmoRecog2","9.1 Afraid","9.1.1 Afraid","9.1.2 Anger","9.1.3 Disgust","9.1.4 Happy","9.1.5 Neutral","9.1.6 Sad","9.1.7 Surprise","9.2 Anger","9.2.1 Afraid","9.2.2 Anger","9.2.3 Disgust","9.2.4 Happy","9.2.5 Neutral","9.2.6 Sad","9.2.7 Surprise","9.3 Disgust","9.3.1 Afraid","9.3.2 Anger","9.3.3 Disgust","9.3.4 Happy","9.3.5 Neutral","9.3.6 Sad","9.3.7 Surprise","9.4 Happy","9.4.1 Afraid","9.4.2 Anger","9.4.3 Disgust","9.4.4 Happy","9.4.5 Neutral","9.4.6 Sad","9.4.7 Surprise","9.5 Neutral","9.5.1 Afraid","9.5.2 Anger","9.5.3 Disgust","9.5.4 Happy","9.5.5 Neutral","9.5.6 Sad","9.5.7 Surprise","9.6 Sad","9.6.1 Afraid","9.6.2 Anger","9.6.3 Disgust","9.6.4 Happy","9.6.5 Neutral","9.6.6 Sad","9.6.7 Surprise","9.7 Surprise","9.7.1 Afraid","9.7.2 Anger","9.7.3 Disgust","9.7.4 Happy","9.7.5 Neutral","9.7.6 Sad","9.7.7 Surprise")
+results_total = data.frame(matrix(NA,    # Create empty data frame
+                                  nrow = length(output_fields),
+                                  ncol = 0))
+
+rownames(results_total) = output_fields
 
 for (k in patients_names){
   results = data.frame()
@@ -192,6 +205,20 @@ for (k in patients_names){
   #Tests 1-4
   for(i in 1:4){
     for(m in 1:4){results = rbind(results, correct1(j,i)[m])}}
+  
+  #Combination of emotional tests (2 & 4)
+  impulsivity_emo_errorrate = (results[5,1]+results[13,1])/2
+  impulsivity_emo_go_errorrate = (results[6,1]+results[14,1])/2
+  impulsivity_emo_nogo_errorrate = (results[7,1]+results[15,1])/2
+  impulsivity_emo_go_time = (results[8,1]+results[16,1])/2
+  
+  #Combination of non-emotional tests (1 & 3)
+  impulsivity_nonemo_errorrate = (results[1,1]+results[9,1])/2
+  impulsivity_nonemo_go_errorrate = (results[2,1]+results[10,1])/2
+  impulsivity_nonemo_nogo_errorrate = (results[3,1]+results[11,1])/2
+  impulsivity_nonemo_go_time = (results[4,1]+results[12,1])/2
+  
+  results = rbind(results,impulsivity_emo_errorrate, impulsivity_emo_go_errorrate, impulsivity_emo_nogo_errorrate, impulsivity_emo_go_time, impulsivity_nonemo_errorrate, impulsivity_nonemo_go_errorrate, impulsivity_nonemo_nogo_errorrate, impulsivity_nonemo_go_time)  
   
   #Test 5 
   for(i in 1:10){results = rbind(results, correct5(j,5)[i])}
@@ -207,6 +234,18 @@ for (k in patients_names){
     
   #Test 9
   for(i in 1:57){results = rbind(results, correct2(j,9)[i])}
+  
+  #Combination of emotion recognition tests (7 & 9)
+  recog_emo_acc = (results[41,1]+results[99,1])/2
+  recog_afraid_acc = (results[42,1]+results[100,1])/2
+  recog_anger_acc = (results[50,1]+results[108,1])/2
+  recog_disgust_acc = (results[58,1]+results[116,1])/2
+  recog_happy_acc = (results[66,1]+results[124,1])/2
+  recog_neutral_acc = (results[74,1]+results[132,1])/2
+  recog_sad_acc = (results[82,1]+results[140,1])/2
+  recog_surprise_acc = (results[90,1]+results[148,1])/2
+  
+  results = rbind(results,recog_emo_acc, recog_afraid_acc, recog_anger_acc, recog_disgust_acc, recog_happy_acc, recog_neutral_acc, recog_sad_acc, recog_surprise_acc)
   
   #Result handling
   colnames(results) = k
@@ -224,11 +263,12 @@ save(results_total,file="scores.Rda")
 
 
 output = data.frame(matrix(NA,    # Create empty data frame
-                           nrow = 147,
+                           nrow = length(output_fields),
                            ncol = 0))
 
-rownames(output) = c("1 Imp. X","1.1 Imp. X_GO","1.2 Imp. X_NOGO","1.3 Imp. X_GO_Time","2 Imp. Happy","2.1 Imp. Happy_GO","2.2 Imp. Happy_NOGO","2.3 Imp. Happy_GO_Time","3 Imp. K","3.1 Imp. K_GO","3.2 Imp. K_NOGO","3.3 Imp. K_GO_Time","4 Imp. Anger","4.1 Imp. Anger_GO","4.2 Imp. Anger_NOGO","4.3 Imp. Anger_GO_Time","5 FitCEmo Ges.","5.1 Anger","5.2 Happy","5.3 Odd","5.4 Neutral","5.5 FitCEmo Ges._Time","5.6 Anger_Time","5.7 Happy_Time","5.8 Odd_Time","5.9 Neutral_Time","6 FitC NonEmo","6.1 FitC NonEmo_Odd","6.2 FitC NonEmo_Equal","6.3 FitC NonEmo_time","6.4 FitC NonEmo_Odd_time","6.5 FitC NonEmo_Equal_time","7 EmoRecog1","7.1 Afraid","7.1.1 Afraid","7.1.2 Anger","7.1.3 Disgust","7.1.4 Happy","7.1.5 Neutral","7.1.6 Sad","7.1.7 Surprise","7.2 Anger","7.2.1 Afraid","7.2.2 Anger","7.2.3 Disgust","7.2.4 Happy","7.2.5 Neutral","7.2.6 Sad","7.2.7 Surprise","7.3 Disgust","7.3.1 Afraid","7.3.2 Anger","7.3.3 Disgust","7.3.4 Happy","7.3.5 Neutral","7.3.6 Sad","7.3.7 Surprise","7.4 Happy","7.4.1 Afraid","7.4.2 Anger","7.4.3 Disgust","7.4.4 Happy","7.4.5 Neutral","7.4.6 Sad","7.4.7 Surprise","7.5 Neutral","7.5.1 Afraid","7.5.2 Anger","7.5.3 Disgust","7.5.4 Happy","7.5.5 Neutral","7.5.6 Sad","7.5.7 Surprise","7.6 Sad","7.6.1 Afraid","7.6.2 Anger","7.6.3 Disgust","7.6.4 Happy","7.6.5 Neutral","7.6.6 Sad","7.6.7 Surprise","7.7 Surprise","7.7.1 Afraid","7.7.2 Anger","7.7.3 Disgust","7.7.4 Happy","7.7.5 Neutral","7.7.6 Sad","7.7.7 Surprise","8 N.-EmoRec","9 EmoRecog2","9.1 Afraid","9.1.1 Afraid","9.1.2 Anger","9.1.3 Disgust","9.1.4 Happy","9.1.5 Neutral","9.1.6 Sad","9.1.7 Surprise","9.2 Anger","9.2.1 Afraid","9.2.2 Anger","9.2.3 Disgust","9.2.4 Happy","9.2.5 Neutral","9.2.6 Sad","9.2.7 Surprise","9.3 Disgust","9.3.1 Afraid","9.3.2 Anger","9.3.3 Disgust","9.3.4 Happy","9.3.5 Neutral","9.3.6 Sad","9.3.7 Surprise","9.4 Happy","9.4.1 Afraid","9.4.2 Anger","9.4.3 Disgust","9.4.4 Happy","9.4.5 Neutral","9.4.6 Sad","9.4.7 Surprise","9.5 Neutral","9.5.1 Afraid","9.5.2 Anger","9.5.3 Disgust","9.5.4 Happy","9.5.5 Neutral","9.5.6 Sad","9.5.7 Surprise","9.6 Sad","9.6.1 Afraid","9.6.2 Anger","9.6.3 Disgust","9.6.4 Happy","9.6.5 Neutral","9.6.6 Sad","9.6.7 Surprise","9.7 Surprise","9.7.1 Afraid","9.7.2 Anger","9.7.3 Disgust","9.7.4 Happy","9.7.5 Neutral","9.7.6 Sad","9.7.7 Surprise")
+rownames(output) = output_fields
 
+output2 = output
 
 for (i in 1:ncol(results_total)){
   
