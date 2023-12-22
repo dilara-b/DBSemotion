@@ -43,6 +43,6 @@ for (i in 1:nrow(ANOVA_combinations)){
   
   print(shapiro_test(group_by(changescores_subset,emotion,group), acc))
 
-  print(anova_test(changescores_subset, dv = acc, wid = subject, between = group, within = emotion))
+  print(anova_test(changescores_subset, dv = acc, wid = subject, between = c(group, emotion)))
   
 }
