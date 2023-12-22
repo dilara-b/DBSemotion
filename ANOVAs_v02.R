@@ -31,9 +31,13 @@ output_t$subject = rownames(output_t)
 output_t$group = sub('(^.*?)-.*', '\\1', output_t$subject)
 
 #convert change scores to long format
-changescores_long = gather(output_t, emotion, acc, '1 Imp. X':'9.7.7 Surprise')
+changescores_long = gather(output_t, emotion, acc, '1 Imp. X error rate':'recog_surprise_acc')
 
-ANOVA_combinations = rbind(c("1 Imp. X","2 Imp. Happy"),c("3 Imp. K","2 Imp. Happy"),c("1 Imp. X","4 Imp. Anger"),c("3 Imp. K","4 Imp. Anger"))
+ANOVA_combinations = rbind(c("1 Imp. X error rate","2 Imp. Happy error rate"),
+                           c("3 Imp. K error rate","2 Imp. Happy error rate"),
+                           c("1 Imp. X error rate","4 Imp. Anger error rate"),
+                           c("3 Imp. K error rate","4 Imp. Anger error rate"),
+                           c("impulsivity_emo_errorrate", "impulsivity_nonemo_errorrate"))
 
 for (i in 1:nrow(ANOVA_combinations)){
   
