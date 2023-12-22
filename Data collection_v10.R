@@ -28,10 +28,10 @@ substrRight <- function(x, n){
 }
 
 #returns fraction of wrong answers for tests 1 to 4
-correct1 = function(patient,number){
+correct1 = function(subject,number){
   
   #convert list to dataframe
-  df = patient[[number]]
+  df = subject[[number]]
   
   #calculate mean/sd response times for responses where candidate pressed space
   response_time_mean = mean(df$response_time[df$response == "space" | df$response == "space "])
@@ -51,9 +51,9 @@ correct1 = function(patient,number){
 }
 
 #returns fraction of correct answers for test 5
-correct5 = function(patient,number){
+correct5 = function(subject,number){
   
-  df = patient[[number]]
+  df = subject[[number]]
   
   response_time_mean = mean(df$response_time)
   response_time_sd = sd(df$response_time)
@@ -77,9 +77,9 @@ correct5 = function(patient,number){
 }
 
 #returns fraction of correct answers for test 6
-correct6 = function(patient,number){
+correct6 = function(subject,number){
 
-  df = patient[[number]]
+  df = subject[[number]]
   
   response_time_mean = mean(df$response_time)
   response_time_sd = sd(df$response_time)
@@ -99,31 +99,31 @@ correct6 = function(patient,number){
 
 #returns fraction of correct answers for tests 7 & 9
 #first changes all emotion responses to their last two letters (to avoid encoding issues), then replaces with dictionary to compare to correct emotion
-correct2 = function(patient,number){
+correct2 = function(subject,number){
   
-  for (m in 1:nrow(patient[[number]]["response"])){
-    patient[[number]]["response"][m,] = substrRight(patient[[number]]["response"][m,],2)
+  for (m in 1:nrow(subject[[number]]["response"])){
+    subject[[number]]["response"][m,] = substrRight(subject[[number]]["response"][m,],2)
     
   }
   
   for (j in 1:7){
-    patient[[number]]["response"] <- unlist(
+    subject[[number]]["response"] <- unlist(
       replace(
-        patient[[number]]["response"], 
-        patient[[number]]["response"] == names(dict[j]), 
+        subject[[number]]["response"], 
+        subject[[number]]["response"] == names(dict[j]), 
         dict[j])
       )
   }
   
-  res = sum(patient[[number]]["response"] == patient[[number]]["emotion"])/nrow(patient[[number]]["response"])
+  res = sum(subject[[number]]["response"] == subject[[number]]["emotion"])/nrow(subject[[number]]["response"])
   
   res_d = c()
   for (m in emotions){
-    res_d = c(res_d, sum((patient[[number]]["response"] == patient[[number]]["emotion"]) * (patient[[number]]["emotion"] == m)) / sum(patient[[number]]["emotion"] == m))
+    res_d = c(res_d, sum((subject[[number]]["response"] == subject[[number]]["emotion"]) * (subject[[number]]["emotion"] == m)) / sum(subject[[number]]["emotion"] == m))
   
     for (n in emotions){
       
-      res_d = c(res_d, sum((patient[[number]]["response"] == n) * (patient[[number]]["emotion"] == m)))
+      res_d = c(res_d, sum((subject[[number]]["response"] == n) * (subject[[number]]["emotion"] == m)))
       
     }
     
@@ -137,13 +137,13 @@ correct2 = function(patient,number){
 
 #returns fraction of correct answers for test 8
 #counts what fraction of responses identify the correct gender
-correct3 = function(patient,number){
+correct3 = function(subject,number){
   
   count = 0
-  max = nrow(patient[[number]]["stimulus"])
+  max = nrow(subject[[number]]["stimulus"])
   
   for (j in 1:max){
-    if(grepl("Mann",patient[[number]]["response"][j,]) == grepl("AM",patient[[number]]["stimulus"][j,])){
+    if(grepl("Mann",subject[[number]]["response"][j,]) == grepl("AM",subject[[number]]["stimulus"][j,])){
       count = count + 1
       
     }
@@ -156,22 +156,22 @@ correct3 = function(patient,number){
 
 ### Setup-------------------------------------------------------------------------------------------------------
 
-setwd("~/Desktop/all") #Folder including all participant folders
+setwd( ) #Folder including all participant folders
 
-patients_dirs = list.dirs(getwd(),recursive = FALSE)
-patients_names = list.dirs(getwd(),recursive = FALSE, full.names = FALSE)
+subjects_dirs = list.dirs(getwd(),recursive = FALSE)
+subjects_names = list.dirs(getwd(),recursive = FALSE, full.names = FALSE)
 
 ### Data read-in------------------------------------------------------------------------------------------------
 
-for(h in 1:length(patients_dirs)){
-  filenames = list.files(patients_dirs[h], pattern="*.csv", full.names=TRUE)
+for(h in 1:length(subjects_dirs)){
+  filenames = list.files(subjects_dirs[h], pattern="*.csv", full.names=TRUE)
   
   for(k in 1:length(filenames)){
-    assign(patients_names[h],lapply(filenames, read.csv, encoding="latin1"))
+    assign(subjects_names[h],lapply(filenames, read.csv, encoding="latin1"))
     
   }
   
-    print(c("Read-in patient",patients_names[h],"concluded"))
+    print(c("Read-in subject",subjects_names[h],"concluded"))
   
 }
 
@@ -196,7 +196,7 @@ results_total = data.frame(matrix(NA,    # Create empty data frame
 
 rownames(results_total) = output_fields
 
-for (k in patients_names){
+for (k in subjects_names){
   results = data.frame()
   
   j = get(k)
@@ -250,7 +250,7 @@ for (k in patients_names){
   #Result handling
   colnames(results) = k
   results_total = cbind(results_total, results)
-  print(c("Analysis patient",k,"concluded"))
+  print(c("Analysis subject",k,"concluded"))
   
 }
 
