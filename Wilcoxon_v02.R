@@ -39,7 +39,7 @@ for (i in tests){
   
 }
 
-#Wilcox-Test PD vs. Healthy Controls
+#Wilcox-Test PD vs. Healthy Controls ("Gesund")
 for (i in tests){
   
   dat_wide = select(output_t, c(all_of(i), 'group', 'subject'))
