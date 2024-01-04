@@ -1,24 +1,22 @@
 ### Setup ------------------------------------------------------------------------------------
-
 rm(list = ls())
-#install.packages("readr") #uncomment as necessary
-#install.packages("openxlsx") #uncomment as necessary
-library(readr)
-library(openxlsx)
+
+## First, specify the packages of interest
+packages = c("readr", "openxlsx")
+source("install_load_packages.r") 							# all defined [packages] are loaded - helper file
 
 min_response_time = 100 #minimum response time to include
 max_sd = 3  #how many standard deviations above mean to include 
 
 ### Functions & Definitions ---------------------------------------------------------------------
-
 #using only last two letters to avoid encoding issues
-dict = list('el' = 'DIS', #Ekel
-            'ng' = 'SUS', #?berraschung
-            'it' = 'HAS', #Fr?hlichkeit
-            'er' = 'SAS', #Trauer
-            'ck' = 'NES', #neutraler Gesichtsausdruck
-            'ut' = 'ANS', #Wut
-            'st' = 'AFS') #Angst
+emotions_dict = list('el' = 'DIS', #Ekel
+                     'ng' = 'SUS', #Ueberraschung
+                     'it' = 'HAS', #Froehlichkeit
+                     'er' = 'SAS', #Trauer
+                     'ck' = 'NES', #neutraler Gesichtsausdruck
+                     'ut' = 'ANS', #Wut
+                     'st' = 'AFS') #Angst
 
 emotions = c("AFS", "ANS", "DIS", "HAS", "NES", "SAS", "SUS")
 
@@ -48,6 +46,35 @@ correct1 = function(subject,number){
   
   return(c(res,res_go,res_nogo,res_time))
   
+}
+
+# Suggestion for correct1 function, called valid_responses; one questions: have you checked for outliers in the data before?
+# Function to calculate the fraction of wrong answers for tests 1 to 4
+# Input: subject - list containing test data, number - test number
+valid_responses = function(subject, number){
+  
+  # Convert list to dataframe
+  df = subject[[number]]
+  
+  # Calculate mean/sd response times for responses where candidate pressed space
+  response_time_mean = mean(df$response_time[df$response %in% c("space", "space ")]) # uses membership operators, which improves readability
+  response_time_sd = sd(df$response_time[df$response %in% c("space", "space ")])
+  
+  # Create subsets based on conditions
+  valid_responses = df$response %in% c("space", "space ") & df$response_time < (response_time_mean + max_sd * response_time_sd) & df$response_time > min_response_time
+  valid_go_responses = valid_responses & df$correct_response %in% c("space", "space ")
+  valid_nogo_responses = df$correct_response %in% c("None")
+  
+  # Subset the dataframe
+  df = df[valid_responses | valid_nogo_responses,]
+  
+  # Calculate metrics
+  res = 1 - mean(df$correct) # Fraction of wrong answers, space when no-go-stimulus appears and none when go-stimulus appears
+  res_go = 1 - mean(df$correct[valid_go_responses]) # Fraction of wrong answers for the go stimulus, no answer when go
+  res_nogo = 1 - mean(df$correct[valid_nogo_responses]) # Fraction of wrong answers for the no-go-stimulus, space when no-go
+  res_time = mean(df$response_time[valid_go_responses]) # Mean response time, including only correct go-stimulus answers 
+  
+  return(c(res, res_go, res_nogo, res_time))    
 }
 
 #returns fraction of correct answers for test 5
@@ -98,7 +125,7 @@ correct6 = function(subject,number){
 }
 
 #returns fraction of correct answers for tests 7 & 9
-#first changes all emotion responses to their last two letters (to avoid encoding issues), then replaces with dictionary to compare to correct emotion
+#first changes all emotion responses to their last two letters (to avoid encoding issues), then replaces with ionary to compare to correct emotion
 correct2 = function(subject,number){
   
   for (m in 1:nrow(subject[[number]]["response"])){
@@ -110,8 +137,8 @@ correct2 = function(subject,number){
     subject[[number]]["response"] <- unlist(
       replace(
         subject[[number]]["response"], 
-        subject[[number]]["response"] == names(dict[j]), 
-        dict[j])
+        subject[[number]]["response"] == names(emotions_dict[j]), 
+        emotions_dict[j])
       )
   }
   
