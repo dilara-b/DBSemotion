@@ -33,12 +33,18 @@ output_t$group = sub('(^.*?)-.*', '\\1', output_t$subject)
 #convert change scores to long format
 changescores_long = gather(output_t, emotion, acc, '1 Imp. X error rate':'recog_surprise_acc')
 
-ANOVA_combinations = rbind(c("1 Imp. X error rate","2 Imp. Happy error rate"),
-                           c("3 Imp. K error rate","2 Imp. Happy error rate"),
-                           c("1 Imp. X error rate","4 Imp. Anger error rate"),
-                           c("3 Imp. K error rate","4 Imp. Anger error rate"),
-                           c("impulsivity_emo_errorrate", "impulsivity_nonemo_errorrate"))
-
+#combinations for primary outcomes, comparing emotional vs. non-emotional tasks
+ANOVA_combinations = rbind(c("impulsivity_emo_errorrate","impulsivity_nonemo_errorrate"),
+                           c("impulsivity_emo_go_errorrate","impulsivity_nonemo_go_errorrate"),
+                           c("impulsivity_emo_nogo_errorrate","impulsivity_nonemo_nogo_errorrate"),
+                           c("impulsivity_emo_time","impulsivity_nonemo_time"),
+                           c("5.3 FitC Emo_Odd","6.1 FitC NonEmo_Odd"),
+                           c("5.4 FitC Emo_Equal", "6.2 FitC NonEmo_Equal"),
+                           c("5.4 FitCEmo_time", "6.3 FitC NonEmo_time"),
+                           c("5.8 FitC Emo_Odd_time", "6.4 FitC NonEmo_Odd_time"),
+                           c("5.9 FitC Emo_Equal_time", "6.5 FitC NonEmo_Equal_time"),
+                           c("recog_emo_acc", "8 N.-EmoRec")) #recog_emo_acc including accuracy for test 7 and 9 in total; 8 N.-EmoRec including accuracy for non-emotional gender recognition task
+    
 for (i in 1:nrow(ANOVA_combinations)){
   
   changescores_subset = changescores_long[(changescores_long$emotion == ANOVA_combinations[i,1]|changescores_long$emotion == ANOVA_combinations[i,2]),]
