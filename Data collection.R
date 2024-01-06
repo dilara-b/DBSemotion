@@ -13,8 +13,8 @@ max_sd = 3  #how many standard deviations above mean to include
 
 #using only last two letters to avoid encoding issues
 dict = list('el' = 'DIS', #Ekel
-            'ng' = 'SUS', #?berraschung
-            'it' = 'HAS', #Fr?hlichkeit
+            'ng' = 'SUS', #Ueberraschung
+            'it' = 'HAS', #Froehlichkeit
             'er' = 'SAS', #Trauer
             'ck' = 'NES', #neutraler Gesichtsausdruck
             'ut' = 'ANS', #Wut
