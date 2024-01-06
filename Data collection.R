@@ -41,10 +41,10 @@ correct1 = function(subject,number){
   df = df[(df$response_time<(response_time_mean+max_sd*response_time_sd) & df$response_time > min_response_time) | df$response == "None",]
   
   res = 1 - mean(df$correct) #fraction of wrong answers, space when no-go-stimulus appears and none when go-stimulus appears
-  res_go = 1 - mean(df$correct[df$correct_response == "space" | df$correct_response == "space "]) #fraction of wrong answers for the go stimulus, no answer when go
-  res_nogo = 1 - mean(df$correct[df$correct_response == "None"]) #fraction of wrong answers for the no-go-stimulus, space when no-go
+  res_go = 1 - mean(df$correct[df$correct_response == "space" | df$correct_response == "space "]) #fraction of wrong answers for the go stimulus, i.e. no action taken when go-stimulus appears
+  res_nogo = 1 - mean(df$correct[df$correct_response == "None"]) #fraction of wrong answers for the no-go stimulus, i.e. action taken when no-go-stimulus appears
   
-  res_time = mean(df$response_time[(df$correct_response == "space" | df$correct_response == "space ") & (df$response == "space" | df$response == "space ")]) #mean response time, including only correct go-stimulus answers 
+  res_time = mean(df$response_time[(df$correct_response == "space" | df$correct_response == "space ") & (df$response == "space" | df$response == "space ")]) #mean response time, including only correct go-stimulus answers, i.e. time of actions taken in response to a go-stimulus 
   
   return(c(res,res_go,res_nogo,res_time))
   
@@ -60,16 +60,16 @@ correct5 = function(subject,number){
   
   df = df[(df$response_time<(response_time_mean+max_sd*response_time_sd) & df$response_time > min_response_time) | df$response == "None",]
   
-  res = mean(df$correct) #fraction of correct answers
-  res_anger = mean(df$correct[df$target == "anger"]) #fraction of correct answers when one face is angry
-  res_happy = mean(df$correct[df$target == "happy"]) #fraction of correct answers when one face is happy
-  res_odd = mean(df$correct[(df$target == "anger") | (df$target == "happy")]) #fraction of correct answers when one face is different, either happy or angry
+  res = mean(df$correct) #fraction of correct answers, i.e. pressing left arrow when one face displays a different emotion (happy/angry), right arrow when all faces display the same emotion (neutral)
+  res_anger = mean(df$correct[df$target == "anger"]) #fraction of correct answers when an angry face is displayed
+  res_happy = mean(df$correct[df$target == "happy"]) #fraction of correct answers when a happy face is displayed
+  res_odd = mean(df$correct[(df$target == "anger") | (df$target == "happy")]) #fraction of correct answers when one face displays a varied emotion, either happy or angry
   res_neutral = mean(df$correct[df$target == "neutral"]) #fraction of correct answers when all faces are neutral
   
   res_time = mean(df$response_time[(df$response == "left" & df$target == "anger") | (df$response == "left" & df$target == "happy") | df$response == "right" & df$target == "neutral"])
-  res_time_anger = mean(df$response_time[df$response == "left" & df$target == "anger"]) #response time of correct answers when one face is angry
-  res_time_happy = mean(df$response_time[df$response == "left" & df$target == "happy"]) #response time of correct answers when one face is happy
-  res_time_odd = mean(df$response_time[(df$response == "left" & df$target == "anger") | (df$response == "left" & df$target == "happy")]) #response time of correct answers when one face is different, either happy or angry
+  res_time_anger = mean(df$response_time[df$response == "left" & df$target == "anger"]) #response time of correct answers when an angry face is displayed
+  res_time_happy = mean(df$response_time[df$response == "left" & df$target == "happy"]) #response time of correct answers when a happy face is displayed
+  res_time_odd = mean(df$response_time[(df$response == "left" & df$target == "anger") | (df$response == "left" & df$target == "happy")]) #response time of correct answers when one face displays a varied emotion, either happy or angry
   res_time_neutral = mean(df$response_time[df$response == "right" & df$target == "neutral"]) #response time of correct answers when all faces are neutral
   
   return(c(res, res_anger, res_happy, res_odd, res_neutral, res_time, res_time_anger, res_time_happy, res_time_odd, res_time_neutral))
@@ -89,9 +89,9 @@ correct6 = function(subject,number){
   res = mean(df$correct) #total of correct answers
   res_odd = mean(df$correct[df$correct_response == "left"]) #fraction of correct answers when one individual is different
   res_equal = mean(df$correct[df$correct_response == "right"]) #fraction of correct answers when all images show the same individual
-  res_time = mean(df$response_time[(df$correct_response == "left" & df$response == "left") | df$correct_response == "right" & df$response == "right"]) #response time when correct response
-  res_time_odd = mean(df$response_time[df$correct_response == "left" & df$response == "left"]) #response time when correct response and one individual is different
-  res_time_equal = mean(df$response_time[df$correct_response == "right" & df$response == "right"]) #response time when correct response and all images show the same indivudal
+  res_time = mean(df$response_time[(df$correct_response == "left" & df$response == "left") | df$correct_response == "right" & df$response == "right"]) #response time when the response is correct, i.e. time taken to press the left arrow for a different individual and right arrow for the same individual
+  res_time_odd = mean(df$response_time[df$correct_response == "left" & df$response == "left"]) #response time for correct responses when one individual is different
+  res_time_equal = mean(df$response_time[df$correct_response == "right" & df$response == "right"]) #response time for correct responses when all images show the same indivudal
   
   return(c(res,res_odd,res_equal,res_time,res_time_odd,res_time_equal))
   
