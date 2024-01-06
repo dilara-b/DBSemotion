@@ -51,7 +51,7 @@ correct1 = function(subject,number){
 }
 
 #returns fraction of correct answers for test 5
-#emotional face-in-the-crowd test consisting of trials with 9 different human faces, either with one emotional facial expression (the target: either happy or angry) among 8 neutral faces (the distractors) or with 9 neutral faces without any target
+#emotional face-in-the-crowd test consisting of trials with 9 different human faces, either with a different facial expression (happy or angry) among 8 neutral faces or with 9 neutral faces without a different expression
 correct5 = function(subject,number){
   
   df = subject[[number]]
@@ -79,12 +79,12 @@ correct5 = function(subject,number){
 }
 
 #returns fraction of correct answers for test 6
-#non-emotional face-in-the-crowd test, either with a stranger (the distractor) among 8 faces of the same identity or 9 faces without any distractor
+#non-emotional face-in-the-crowd test, trials either include a stranger among faces of the same identity or consist only of faces of the same identity
 correct6 = function(subject,number){
 
   df = subject[[number]]
   
-  #calculate mean/sd response times for responses where candidate pressed either right or left to identify outliers, using right and wrong answers          
+  #calculate mean/sd response times for responses where candidate pressed either right or left to identify outliers, using correct and incorrect answers          
   response_time_mean = mean(df$response_time[df$response == "right" | df$response == "left"])
   response_time_sd = sd(df$response_time[df$response == "right" | df$response == "left"])
   
