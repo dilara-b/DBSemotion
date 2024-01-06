@@ -136,7 +136,7 @@ correct2 = function(subject,number){
 }
 
 #returns fraction of correct answers for test 8
-#counts what fraction of responses identify the correct gender
+#counts what fraction of responses identify the correct gender in a single-choice field with two options (woman, man), assuming the answer is woman if "man" ("Mann") is not selected
 correct3 = function(subject,number){
   
   count = 0
