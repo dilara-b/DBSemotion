@@ -181,13 +181,13 @@ for(h in 1:length(subjects_dirs)){
 
 ### Analysis----------------------------------------------------------------------------------------------------
 
-output_fields = c("1 Imp. X error rate","1.1 Imp. X_GO error rate","1.2 Imp. X_NOGO error rate","1.3 Imp. X_GO_Time",
-                  "2 Imp. Happy error rate","2.1 Imp. Happy_GO error rate","2.2 Imp. Happy_NOGO error rate","2.3 Imp. Happy_GO_Time",
-                  "3 Imp. K error rate","3.1 Imp. K_GO error rate","3.2 Imp. K_NOGO error rate","3.3 Imp. K_GO_Time",
-                  "4 Imp. Anger error rate","4.1 Imp. Anger_GO error rate","4.2 Imp. Anger_NOGO error rate","4.3 Imp. Anger_GO_Time",
+output_fields = c("1 Imp. X error rate","1.1 Imp. X_GO error rate","1.2 Imp. X_NOGO error rate","1.3 Imp. X_GO_time",
+                  "2 Imp. Happy error rate","2.1 Imp. Happy_GO error rate","2.2 Imp. Happy_NOGO error rate","2.3 Imp. Happy_GO_time",
+                  "3 Imp. K error rate","3.1 Imp. K_GO error rate","3.2 Imp. K_NOGO error rate","3.3 Imp. K_GO_time",
+                  "4 Imp. Anger error rate","4.1 Imp. Anger_GO error rate","4.2 Imp. Anger_NOGO error rate","4.3 Imp. Anger_GO_time",
                   "impulsivity_emo_errorrate", "impulsivity_emo_go_errorrate", "impulsivity_emo_nogo_errorrate", "impulsivity_emo_time",
                   "impulsivity_nonemo_errorrate", "impulsivity_nonemo_go_errorrate", "impulsivity_nonemo_nogo_errorrate", "impulsivity_nonemo_time",
-                  "5 FitCEmo Ges.","5.1 FitC Emo_Anger","5.2 FitC Emo_Happy","5.3 FitC Emo_Odd","5.4 FitC Emo_Equal","5.5 FitCEmo_time","5.6 FitC Emo_Anger_Time","5.7 Fitc Emo_Happy_Time","5.8 FitC Emo_Odd_Time","5.9 FitC Emo_Equal_Time",
+                  "5 FitCEmo Ges.","5.1 FitC Emo_Anger","5.2 FitC Emo_Happy","5.3 FitC Emo_Odd","5.4 FitC Emo_Equal","5.5 FitCEmo_time","5.6 FitC Emo_Anger_time","5.7 FitC Emo_Happy_time","5.8 FitC Emo_Odd_time","5.9 FitC Emo_Equal_time",
                   "6 FitC NonEmo","6.1 FitC NonEmo_Odd","6.2 FitC NonEmo_Equal","6.3 FitC NonEmo_time","6.4 FitC NonEmo_Odd_time","6.5 FitC NonEmo_Equal_time",
                   "7 EmoRecog1","7.1 Afraid","7.1.1 Afraid","7.1.2 Anger","7.1.3 Disgust","7.1.4 Happy","7.1.5 Neutral","7.1.6 Sad","7.1.7 Surprise","7.2 Anger","7.2.1 Afraid","7.2.2 Anger","7.2.3 Disgust","7.2.4 Happy","7.2.5 Neutral","7.2.6 Sad","7.2.7 Surprise","7.3 Disgust","7.3.1 Afraid","7.3.2 Anger","7.3.3 Disgust","7.3.4 Happy","7.3.5 Neutral","7.3.6 Sad","7.3.7 Surprise","7.4 Happy","7.4.1 Afraid","7.4.2 Anger","7.4.3 Disgust","7.4.4 Happy","7.4.5 Neutral","7.4.6 Sad","7.4.7 Surprise","7.5 Neutral","7.5.1 Afraid","7.5.2 Anger","7.5.3 Disgust","7.5.4 Happy","7.5.5 Neutral","7.5.6 Sad","7.5.7 Surprise","7.6 Sad","7.6.1 Afraid","7.6.2 Anger","7.6.3 Disgust","7.6.4 Happy","7.6.5 Neutral","7.6.6 Sad","7.6.7 Surprise","7.7 Surprise","7.7.1 Afraid","7.7.2 Anger","7.7.3 Disgust","7.7.4 Happy","7.7.5 Neutral","7.7.6 Sad","7.7.7 Surprise",
                   "8 N.-EmoRec",
