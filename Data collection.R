@@ -33,7 +33,7 @@ correct1 = function(subject,number){
   #convert list to dataframe
   df = subject[[number]]
   
-  #calculate mean/sd response times for responses where candidate pressed space to identify outliers using right and wrong "space" answers
+  #calculate mean/sd response times for responses where candidate pressed space to identify outliers, using right and wrong "space" answers
   response_time_mean = mean(df$response_time[df$response == "space" | df$response == "space "])
   response_time_sd = sd(df$response_time[df$response == "space" | df$response == "space "])
   
@@ -55,9 +55,10 @@ correct1 = function(subject,number){
 correct5 = function(subject,number){
   
   df = subject[[number]]
-  
-  response_time_mean = mean(df$response_time)
-  response_time_sd = sd(df$response_time)
+
+  #calculate mean/sd response times for responses where candidate pressed either right or left to identify outliers, using right and wrong answers          
+  response_time_mean = mean(df$response_time[df$response == "right" | df$response == "left"])
+  response_time_sd = sd(df$response_time[df$response == "right" | df$response == "left"])
   
   df = df[(df$response_time<(response_time_mean+max_sd*response_time_sd) & df$response_time > min_response_time) | df$response == "None",]
   
@@ -83,8 +84,9 @@ correct6 = function(subject,number){
 
   df = subject[[number]]
   
-  response_time_mean = mean(df$response_time)
-  response_time_sd = sd(df$response_time)
+  #calculate mean/sd response times for responses where candidate pressed either right or left to identify outliers, using right and wrong answers          
+  response_time_mean = mean(df$response_time[df$response == "right" | df$response == "left"])
+  response_time_sd = sd(df$response_time[df$response == "right" | df$response == "left"])
   
   df = df[(df$response_time<(response_time_mean+max_sd*response_time_sd) & df$response_time > min_response_time) | df$response == "None",]
   
