@@ -50,7 +50,7 @@ correct1 = function(subject,number){
   
 }
 
-#returns fraction of correct answers for test 5
+#returns fraction of correct answers for test 5, emotional face-in-the-crowd test
 correct5 = function(subject,number){
   
   df = subject[[number]]
@@ -63,20 +63,20 @@ correct5 = function(subject,number){
   res = mean(df$correct) #fraction of correct answers
   res_anger = mean(df$correct[df$target == "anger"]) #fraction of correct answers when one face is angry
   res_happy = mean(df$correct[df$target == "happy"]) #fraction of correct answers when one face is happy
-  res_odd = mean(df$correct[(df$target == "anger") | (df$target == "happy")]) #fraction of correct answers when one emotion is different
+  res_odd = mean(df$correct[(df$target == "anger") | (df$target == "happy")]) #fraction of correct answers when one face is different, either happy or angry
   res_neutral = mean(df$correct[df$target == "neutral"]) #fraction of correct answers when all faces are neutral
   
   res_time = mean(df$response_time[(df$response == "left" & df$target == "anger") | (df$response == "left" & df$target == "happy") | df$response == "right" & df$target == "neutral"])
-  res_time_anger = mean(df$response_time[df$response == "left" & df$target == "anger"])
-  res_time_happy = mean(df$response_time[df$response == "left" & df$target == "happy"])
-  res_time_odd = mean(df$response_time[(df$response == "left" & df$target == "anger") | (df$response == "left" & df$target == "happy")]) 
-  res_time_neutral = mean(df$response_time[df$response == "right" & df$target == "neutral"])
+  res_time_anger = mean(df$response_time[df$response == "left" & df$target == "anger"]) #response time of correct answers when one face is angry
+  res_time_happy = mean(df$response_time[df$response == "left" & df$target == "happy"]) #response time of correct answers when one face is happy
+  res_time_odd = mean(df$response_time[(df$response == "left" & df$target == "anger") | (df$response == "left" & df$target == "happy")]) #response time of correct answers when one face is different, either happy or angry
+  res_time_neutral = mean(df$response_time[df$response == "right" & df$target == "neutral"]) #response time of correct answers when all faces are neutral
   
   return(c(res, res_anger, res_happy, res_odd, res_neutral, res_time, res_time_anger, res_time_happy, res_time_odd, res_time_neutral))
   
 }
 
-#returns fraction of correct answers for test 6
+#returns fraction of correct answers for test 6, non-emotional face-in-the-crowd test
 correct6 = function(subject,number){
 
   df = subject[[number]]
@@ -88,10 +88,10 @@ correct6 = function(subject,number){
   
   res = mean(df$correct) #total of correct answers
   res_odd = mean(df$correct[df$correct_response == "left"]) #fraction of correct answers when one individual is different
-  res_equal = mean(df$correct[df$correct_response == "right"]) #fraction of correct answers when all images are the same individual
+  res_equal = mean(df$correct[df$correct_response == "right"]) #fraction of correct answers when all images show the same individual
   res_time = mean(df$response_time[(df$correct_response == "left" & df$response == "left") | df$correct_response == "right" & df$response == "right"]) #response time when correct response
-  res_time_odd = mean(df$response_time[df$correct_response == "left" & df$response == "left"]) #response time when correct and one individual is different
-  res_time_equal = mean(df$response_time[df$correct_response == "right" & df$response == "right"]) #response time when correct and all images are the same indivudal
+  res_time_odd = mean(df$response_time[df$correct_response == "left" & df$response == "left"]) #response time when correct response and one individual is different
+  res_time_equal = mean(df$response_time[df$correct_response == "right" & df$response == "right"]) #response time when correct response and all images show the same indivudal
   
   return(c(res,res_odd,res_equal,res_time,res_time_odd,res_time_equal))
   
@@ -206,13 +206,13 @@ for (k in subjects_names){
   for(i in 1:4){
     for(m in 1:4){results = rbind(results, correct1(j,i)[m])}}
   
-  #Combination of emotional tests (2 & 4)
+  #Combination of emotional impulsivity tests (2 & 4)
   impulsivity_emo_errorrate = (results[5,1]+results[13,1])/2
   impulsivity_emo_go_errorrate = (results[6,1]+results[14,1])/2
   impulsivity_emo_nogo_errorrate = (results[7,1]+results[15,1])/2
   impulsivity_emo_go_time = (results[8,1]+results[16,1])/2
   
-  #Combination of non-emotional tests (1 & 3)
+  #Combination of non-emotional impulsivity tests (1 & 3)
   impulsivity_nonemo_errorrate = (results[1,1]+results[9,1])/2
   impulsivity_nonemo_go_errorrate = (results[2,1]+results[10,1])/2
   impulsivity_nonemo_nogo_errorrate = (results[3,1]+results[11,1])/2
@@ -220,22 +220,22 @@ for (k in subjects_names){
   
   results = rbind(results,impulsivity_emo_errorrate, impulsivity_emo_go_errorrate, impulsivity_emo_nogo_errorrate, impulsivity_emo_go_time, impulsivity_nonemo_errorrate, impulsivity_nonemo_go_errorrate, impulsivity_nonemo_nogo_errorrate, impulsivity_nonemo_go_time)  
   
-  #Test 5 
+  #Test 5 Emotional face-in-the-crowd test
   for(i in 1:10){results = rbind(results, correct5(j,5)[i])}
   
-  #Test 6
+  #Test 6 Non-emotional face-in-the-crowd test
   for(i in 1:6){results = rbind(results, correct6(j,6)[i])}
   
-  #Test 7  
+  #Test 7 Facial Emotion Recognition, part one
   for(i in 1:57){results = rbind(results, correct2(j,7)[i])}
   
-  #Test 8  
+  #Test 8 Gender Recognition 
   results = rbind(results, correct3(j,8))
     
-  #Test 9
+  #Test 9 Facial Emotion Recognition, part two
   for(i in 1:57){results = rbind(results, correct2(j,9)[i])}
   
-  #Combination of emotion recognition tests (7 & 9)
+  #Combination of Facial Emotion Recognition tests (7 & 9)
   recog_emo_acc = (results[41,1]+results[99,1])/2
   recog_afraid_acc = (results[42,1]+results[100,1])/2
   recog_anger_acc = (results[50,1]+results[108,1])/2
