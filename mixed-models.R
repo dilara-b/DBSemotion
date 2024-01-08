@@ -48,8 +48,8 @@ correct_fitc = function(patient,number){
   
   df = patient[[number]]
   
-  response_time_mean = mean(df$response_time)
-  response_time_sd = sd(df$response_time)
+  response_time_mean = mean(df$response_time[df$response == "right" | df$response == "left"])
+  response_time_sd = sd(df$response_time[df$response == "right" | df$response == "left"])
   
   df = df[(df$response_time<(response_time_mean+max_sd*response_time_sd) & df$response_time > min_response_time)]
   return(df)
