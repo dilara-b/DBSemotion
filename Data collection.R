@@ -68,7 +68,7 @@ correct5 = function(subject,number){
   res_odd = mean(df$correct[(df$target == "anger") | (df$target == "happy")]) #fraction of correct answers when one face displays a different emotion, either happy or angry
   res_neutral = mean(df$correct[df$target == "neutral"]) #fraction of correct answers when all faces are neutral
   
-  res_time = mean(df$response_time[(df$response == "left" & df$target == "anger") | (df$response == "left" & df$target == "happy") | df$response == "right" & df$target == "neutral"])
+  res_time = mean(df$response_time[(df$response == "left" & df$target == "anger") | (df$response == "left" & df$target == "happy") | df$response == "right" & df$target == "neutral"]) #response time of correct answers, i.e. pressing left arrow key for anger and happy targets or right arrow key for neutral targets
   res_time_anger = mean(df$response_time[df$response == "left" & df$target == "anger"]) #response time of correct answers when an angry face is displayed
   res_time_happy = mean(df$response_time[df$response == "left" & df$target == "happy"]) #response time of correct answers when a happy face is displayed
   res_time_odd = mean(df$response_time[(df$response == "left" & df$target == "anger") | (df$response == "left" & df$target == "happy")]) #response time of correct answers when one face displays a different emotion, either happy or angry
