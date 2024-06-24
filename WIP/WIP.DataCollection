@@ -9,7 +9,7 @@ library(openxlsx)
 
 min_response_time = 100 #minimum response time to include
 max_sd = 3  #how many standard deviations above mean to include 
-
+df_mod <- data.frame(lapply(df, function(x) {gsub("space ", "space", x)}))
 ### Functions & Definitions ---------------------------------------------------------------------
 
 #using only last two letters to avoid encoding issues
@@ -35,7 +35,7 @@ correct1 = function(subject,number){
   df = subject[[number]]
   
   #calculate mean/sd response times for responses where candidate pressed space to identify outliers, using right and wrong "space" answers
-  response_time_mean = mean(df$response_time[df$response == "space" | df$response == "space "])
+  df_mod <- data.frame(lapply(df, function(x) {gsub("space ", "space", x)}))
   response_time_sd = sd(df$response_time[df$response == "space" | df$response == "space "])
   
   #only keep rows where response is "None" or rows where response time is >min_response_time milliseconds AND <Mean+max_sd SDs
@@ -45,7 +45,8 @@ correct1 = function(subject,number){
   res_go = 1 - mean(df$correct[df$correct_response == "space" | df$correct_response == "space "]) #fraction of wrong answers for the go stimulus, i.e. no action taken when go-stimulus appears
   res_nogo = 1 - mean(df$correct[df$correct_response == "None"]) #fraction of wrong answers for the no-go stimulus, i.e. action taken when no-go-stimulus appears
   
-  res_time = mean(df$response_time[(df$correct_response == "space" | df$correct_response == "space ") & (df$response == "space" | df$response == "space ")]) #mean response time, including only correct go-stimulus answers, i.e. time of action taken in response to a go-stimulus 
+  filtered_responses <- df[df$correct_response %in% c("space", "space ") & df$response %in% c("space", "space "), ]
+res_time <- mean(filtered_responses$response_time) #mean response time, including only correct go-stimulus answers, i.e. time of action taken in response to a go-stimulus 
   
   return(c(res,res_go,res_nogo,res_time))
   
@@ -69,7 +70,13 @@ correct5 = function(subject,number){
   res_odd = mean(df$correct[(df$target == "anger") | (df$target == "happy")]) #fraction of correct answers when one face displays a different emotion, either happy or angry
   res_neutral = mean(df$correct[df$target == "neutral"]) #fraction of correct answers when all faces are neutral
   
-  res_time = mean(df$response_time[(df$response == "left" & df$target == "anger") | (df$response == "left" & df$target == "happy") | df$response == "right" & df$target == "neutral"]) #response time of correct answers, i.e. pressing left arrow key for anger and happy targets or right arrow key for neutral targets
+ left_correct <- df$response == "left" & df$target %in% c("anger", "happy")
+
+ right_correct <- df$response == "right" & df$target == "neutral"
+
+ filtered_responses <- df[left_correct | right_correct, ]
+
+ res_time <- mean(filtered_responses$response_time) ## Calculate the mean response time from the filtered data #response time of correct answers, i.e. pressing left arrow key for anger and happy targets or right arrow key for neutral targets
   res_time_anger = mean(df$response_time[df$response == "left" & df$target == "anger"]) #response time of correct answers when an angry face is displayed
   res_time_happy = mean(df$response_time[df$response == "left" & df$target == "happy"]) #response time of correct answers when a happy face is displayed
   res_time_odd = mean(df$response_time[(df$response == "left" & df$target == "anger") | (df$response == "left" & df$target == "happy")]) #response time of correct answers when one face displays a different emotion, either happy or angry
