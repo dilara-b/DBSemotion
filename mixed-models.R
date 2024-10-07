@@ -7,7 +7,7 @@ library(emmeans)
 library(stringr)
 library(rstatix)
 ## Setup ------------------------------------------------------------------------------------
-setwd("/Users/huser/Desktop/All_Subjects-Emotion_DBS")
+setwd()
 
 patients_dirs = list.dirs(getwd(),recursive = FALSE)
 patients_names = list.dirs(getwd(),recursive = FALSE, full.names = FALSE)
@@ -246,6 +246,7 @@ imp_rt %>%
   group_by(task, group, time) %>%
   get_summary_stats(response_time, type = "mean_sd")
 
+
 # build model
 imp_rt_logmodel <- lmer(response_time ~ group*time*task+ (1 | subj), data = imp_rt,REML = T)
 summary(imp_rt_logmodel)
@@ -312,7 +313,7 @@ joint_tests(fitc_emo_logmodel)
 joint_tests(fitc_emo_logmodel, by = c("group", "target"))
 
 #rt
-fitc_emo_logmodel <- lmer(correct ~ group*time*target + (1 | subj), data = fitc_emo)
+fitc_emo_logmodel <- lmer(response_time ~ group*time*target + (1 | subj), data = fitc_emo)
 summary(fitc_emo_logmodel)
 
 ############# EMOTION RECOGNITION TASK #####################
@@ -348,16 +349,19 @@ joint_tests(disgust_logmodel, by = "group")
 happiness <- filter(emo, emo$emotion=="HAS")
 happiness_logmodel <- glmer(correct ~ group*time + (1 | subj), data = happiness, family = binomial)
 summary(happiness_logmodel)
+joint_tests(happiness_logmodel)
 joint_tests(happiness_logmodel, by = "group")
 
 sadness <- filter(emo, emo$emotion=="SAS")
 sadness_logmodel <- glmer(correct ~ group*time + (1 | subj), data = sadness, family = binomial)
 summary(sadness_logmodel)
+joint_tests(sadness_logmodel)
 joint_tests(sadness_logmodel, by = "group")
 
 anger <- filter(emo, emo$emotion=="ANS")
 anger_logmodel <- glmer(correct ~ group*time + (1 | subj), data =anger, family = binomial)
 summary(anger_logmodel)
+joint_tests(anger_logmodel)
 joint_tests(anger_logmodel, by = "group")
 
 surprise <- filter(emo, emo$emotion=="SUS")
