@@ -4,7 +4,7 @@ library(dplyr)
 library(ggplot2)
 
 # Set working directory
-setwd("/Users/dilara/Desktop")
+setwd("")
 
 # Read the data from the Excel file
 data = read_excel("DA_LEDD_CORR.xlsx", sheet = "Tabelle1")
