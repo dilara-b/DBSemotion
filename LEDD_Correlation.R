@@ -4,7 +4,7 @@ library(dplyr)
 library(ggplot2)
 
 # Set working directory
-setwd("/Users/dilara/Desktop")
+setwd("")
 
 # Read the data from the Excel file
 data = read_excel("LEDD_Correlation_OHNE.xlsx", sheet = "Tabelle1")
