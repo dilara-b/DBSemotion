@@ -6,8 +6,9 @@ library(lmerTest)
 library(emmeans)
 library(stringr)
 library(rstatix)
+library(ggplot2)
 ## Setup ------------------------------------------------------------------------------------
-setwd()
+setwd("")
 
 patients_dirs = list.dirs(getwd(),recursive = FALSE)
 patients_names = list.dirs(getwd(),recursive = FALSE, full.names = FALSE)
@@ -51,7 +52,7 @@ correct_fitc = function(patient,number){
   response_time_mean = mean(df$response_time[df$response == "right" | df$response == "left"])
   response_time_sd = sd(df$response_time[df$response == "right" | df$response == "left"])
   
-  df = df[(df$response_time<(response_time_mean+max_sd*response_time_sd) & df$response_time > min_response_time)]
+  df = df[((df$response_time<(response_time_mean+max_sd*response_time_sd) & (df$response_time > min_response_time)) | df$response == "None"),]
   return(df)
 }
 
@@ -200,10 +201,16 @@ imp$group<- factor(imp$group, levels = c("DBS", "Gesund", "IPS"))
 
 ###### commisson errors
 imp_nogo <- filter(imp, imp$correct_response == "None")
+
 #get mean and sd accuracy per group,task and time
-imp_nogo%>%
+imp_nogo %>%
   group_by(task, group, time) %>%
-  get_summary_stats(correct, type = "mean_sd")
+  summarise(
+    mean_accuracy = mean(correct, na.rm = TRUE),
+    sd_accuracy = sd(correct, na.rm = TRUE),
+    n = n() 
+  )
+
 # build model
 imp_nogo_logmodel <- glmer(correct ~ group*time*task + (1 | subj), data = imp_nogo, family = binomial)
 summary(imp_nogo_logmodel)
@@ -220,10 +227,18 @@ joint_tests(imp_nogo_logmodel, by = c("group", "task"))
 
 ##### omission errors
 imp_go <- filter(imp, imp$correct_response == "space"| imp$correct_response == "space ")
+
 #get mean and sd accuracy per group,task and time
 imp_go %>%
   group_by(task, group, time) %>%
-  get_summary_stats(correct, type = "mean_sd")
+  summarise(
+    mean_accuracy = mean(correct, na.rm = TRUE),
+    sd_accuracy = sd(correct, na.rm = TRUE),
+    mean_response_time = mean(response_time[response == "space"| response == "space "], na.rm = TRUE),
+    sd_response_time = sd(response_time[response == "space"| response == "space "], na.rm = TRUE),
+    n = n()
+  )
+
 # build model
 imp_go_logmodel <- glmer(correct ~ group*time*task + (1 | subj), data = imp_go, family = binomial)
 summary(imp_go_logmodel)
@@ -282,19 +297,51 @@ anova(imp_emo_rt_logmodel)
 
 ################## FACE IN THE CROWD ############################
 
-fitc%>%
+fitc %>%
   group_by(task, group, time) %>%
-  get_summary_stats(correct, type = "mean_sd")
+  summarise(
+    mean_accuracy = mean(correct, na.rm = TRUE),
+    sd_accuracy = sd(correct, na.rm = TRUE),
+    mean_response_time = mean(response_time[response %in% c("left", "right")], na.rm = TRUE),
+    sd_response_time = sd(response_time[response %in% c("left", "right")], na.rm = TRUE),
+    n = n()  # This will include the count of observations
+  )
 
 fitc_logmodel <- glmer(correct ~ group*time*task + (1 | subj), data = fitc, family = binomial)
 summary(fitc_logmodel)
 # ANOVA-style table by group to check for time effects within each group
 joint_tests(fitc_logmodel, by = c("group", "task"))
 
-fitc_rt_logmodel <- lmer(response_time ~ group*time*task + (1 | subj), data = fitc)
+fitc_rt <- fitc %>% 
+  filter(response %in% c("left", "right"))
+
+fitc_rt_logmodel <- lmer(response_time ~ group*time*task + (1 | subj), data = fitc_rt)
 summary(fitc_rt_logmodel)
 # ANOVA-style table by group to check for time effects within each group
 joint_tests(fitc_rt_logmodel, by = c("group", "task"))
+
+fitc_rt_logmodel_emm <- emmeans(fitc_rt_logmodel, 
+               specs = ~ group * time * task,  
+               type = "response")             
+
+tiff("FitC_response time.tiff", units="in", width=4, height=3, res=300)
+
+emmip(fitc_rt_logmodel, group ~ time | task) +
+  labs(y = "Reaction time (ms)", x = "Time") +
+  # Rename the legend title and labels for 'group'
+  scale_color_discrete(
+    name = "Group",
+    labels = c("DBS" = "DBS-i", "Gesund" = "HC", "IPS" = "non-DBS")
+  ) +
+  facet_wrap(~ task, labeller = as_labeller(
+    c("fitc_emo" = "Emo Task", 
+      "fitc_non-emo" = "Non-Emo Task")
+  )) +
+
+  theme_bw()
+
+dev.off()
+
 
 ##Secondary analysis emotional only 
 fitc_emo <- filter(fitc, fitc$task == "fitc_emo")
@@ -312,9 +359,13 @@ joint_tests(fitc_emo_logmodel)
 # ANOVA-style table by group to check for effects within each group
 joint_tests(fitc_emo_logmodel, by = c("group", "target"))
 
+
+fitc_emo_rt <- fitc_emo %>% 
+  filter(response %in% c("left", "right"))
+
 #rt
-fitc_emo_logmodel <- lmer(response_time ~ group*time*target + (1 | subj), data = fitc_emo)
-summary(fitc_emo_logmodel)
+fitc_emo_rt_logmodel <- lmer(response_time ~ group*time*target + (1 | subj), data = fitc_emo_rt)
+summary(fitc_emo_rt_logmodel)
 
 ############# EMOTION RECOGNITION TASK #####################
 
@@ -328,10 +379,38 @@ joint_tests(emorecog_logmodel, by = c("group", "task"))
 
 ## only emotional task
 # get summary (mean, sd) per group, time and emotion 
-emo%>%
+emo_summary <- emo %>%
   group_by(emotion, group, time) %>%
-  get_summary_stats(correct, type = "mean_sd")%>% 
-  print(n=42)
+  get_summary_stats(correct, type = "mean_sd") %>%
+  mutate(group = recode(group, 
+                        "DBS" = "DBSi", 
+                        "IPS" = "non-DBS", 
+                        "Gesund" = "HC"),
+         emotion = recode(emotion,
+                          "AFS" = "Afraid",
+                          "ANS" = "Angry",
+                          "DIS" = "Disgusted",
+                          "HAS" = "Happy",
+                          "NES" = "Neutral",
+                          "SAS" = "Sad",
+                          "SUS" = "Surprised")) 
+
+# Print all rows to check the result
+print(emo_summary, n = 42)
+
+tiff("accuracy.tiff", units="in", width=7, height=7, res=300)
+
+ggplot(emo_summary, aes(x = time, y = mean, color = group, group = group)) +
+  geom_line(size = 0.7) +  
+  geom_point(size = 2) +
+  facet_wrap(~emotion, nrow = 3, ncol = 3) +  # Adjust layout (4 in first row, 3 in second)
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) + # Show accuracy as 0% to 100%
+  theme_minimal() +
+  labs(x = "Time", y = "Mean accuracy", color = "Group") +
+  theme(legend.position = "bottom",
+        panel.spacing = unit(0.5, "lines"))  # Reduce space between plots
+
+dev.off()
 
 # afraid 
 fear <- filter(emo, emo$emotion=="AFS")
