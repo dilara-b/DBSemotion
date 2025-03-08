@@ -7,6 +7,10 @@ library(emmeans)
 library(stringr)
 library(rstatix)
 library(ggplot2)
+library(ggtext)
+library(patchwork)
+
+
 ## Setup ------------------------------------------------------------------------------------
 setwd("")
 
@@ -312,6 +316,29 @@ summary(fitc_logmodel)
 # ANOVA-style table by group to check for time effects within each group
 joint_tests(fitc_logmodel, by = c("group", "task"))
 
+
+fitc_logmodel_emm <- emmeans(fitc_logmodel, 
+                                specs = ~ group * time * task,  
+                                type = "response")             
+
+tiff("FitC_accuracy.tiff", units="in", width=4, height=3, res=300)
+
+emmip(fitc_logmodel, group ~ time | task, type = "response") +
+  labs(y = "Accuracy", x = "Time") +
+  scale_color_discrete(
+    name = "Group",
+    labels = c("DBS" = "DBS-i", "Gesund" = "HC", "IPS" = "non-DBS")
+  ) +
+  facet_wrap(~ task, labeller = as_labeller(
+    c("fitc_emo" = "Emo Task",
+      "fitc_non-emo" = "Non-Emo Task")
+  )) +
+  theme_bw()
+
+dev.off()
+
+
+
 fitc_rt <- fitc %>% 
   filter(response %in% c("left", "right"))
 
@@ -321,8 +348,8 @@ summary(fitc_rt_logmodel)
 joint_tests(fitc_rt_logmodel, by = c("group", "task"))
 
 fitc_rt_logmodel_emm <- emmeans(fitc_rt_logmodel, 
-               specs = ~ group * time * task,  
-               type = "response")             
+                                specs = ~ group * time * task,  
+                                type = "response")             
 
 tiff("FitC_response time.tiff", units="in", width=4, height=3, res=300)
 
@@ -337,7 +364,7 @@ emmip(fitc_rt_logmodel, group ~ time | task) +
     c("fitc_emo" = "Emo Task", 
       "fitc_non-emo" = "Non-Emo Task")
   )) +
-
+  
   theme_bw()
 
 dev.off()
@@ -387,32 +414,70 @@ emo_summary <- emo %>%
                         "IPS" = "non-DBS", 
                         "Gesund" = "HC"),
          emotion = recode(emotion,
-                          "AFS" = "Afraid",
-                          "ANS" = "Angry",
-                          "DIS" = "Disgusted",
-                          "HAS" = "Happy",
+                          "AFS" = "Fear",
+                          "ANS" = "Anger",
+                          "DIS" = "Disgust",
+                          "HAS" = "Happiness",
                           "NES" = "Neutral",
-                          "SAS" = "Sad",
-                          "SUS" = "Surprised")) 
+                          "SAS" = "Sadness",
+                          "SUS" = "Surprise"))
 
 # Print all rows to check the result
 print(emo_summary, n = 42)
 
-tiff("accuracy.tiff", units="in", width=7, height=7, res=300)
+emo_summary_agg <- emo %>%
+  group_by(group, time) %>%
+  get_summary_stats(correct, type = "mean_sd") %>%
+  mutate(group = recode(group, 
+                        "DBS" = "DBSi", 
+                        "IPS" = "non-DBS", 
+                        "Gesund" = "HC"),
+         emotion = "All Emotions")
 
-ggplot(emo_summary, aes(x = time, y = mean, color = group, group = group)) +
-  geom_line(size = 0.7) +  
-  geom_point(size = 2) +
-  facet_wrap(~emotion, nrow = 3, ncol = 3) +  # Adjust layout (4 in first row, 3 in second)
-  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) + # Show accuracy as 0% to 100%
+### PLOT 1: "All Emotions" as a Separate Large Plot on the Left ###
+all_emotions_plot <- ggplot(emo_summary_agg, aes(x = time, y = mean, color = group, group = group)) +
+  geom_line(size = 1) +
+  geom_point(size = 3) +
+  scale_x_discrete(expand = c(0.2, 0)) +  # Remove extra space
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
   theme_minimal() +
-  labs(x = "Time", y = "Mean accuracy", color = "Group") +
-  theme(legend.position = "bottom",
-        panel.spacing = unit(0.5, "lines"))  # Reduce space between plots
+  labs(y = "Accuracy", x = "", color = "Group", title = "All Emotions") +
+  theme(
+    legend.position = "none",  # Remove legend (avoid duplication)
+    strip.text = element_text(size = 12, face = "bold"),  # Ensure facet label consistency
+    plot.title = element_text(size = 12, face = "bold"),  
+    axis.title = element_text(size = 12),  
+    axis.text = element_text(size = 12),
+    panel.spacing = unit(0.3, "lines")  
+  )
 
+### PLOT 2: Faceted Plot for Individual Emotions on the Right ###
+faceted_emotions_plot <- ggplot(emo_summary, aes(x = time, y = mean, color = group, group = group)) +
+  geom_line(size = 0.7) +
+  geom_point(size = 2) +
+  facet_wrap(~emotion, nrow = 2, ncol = 4) +  # Adjust grid layout for better alignment
+  scale_x_discrete(expand = c(0.2, 0)) +  # Remove extra space
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  theme_minimal() +
+  labs(y = "Accuracy", x = "", color = "Group") +
+  theme(
+    legend.position = "bottom",
+    panel.spacing = unit(0.5, "lines"),
+    strip.text = element_text(size = 12, face = "bold"),  # Ensure facet label consistency
+    plot.title = element_text(size = 12),  
+    axis.title = element_text(size = 12),  
+    axis.text = element_text(size = 12),
+    legend.title = element_text(size = 12)
+  )
+
+### COMBINE BOTH PLOTS SIDE-BY-SIDE ###
+final_plot <- (all_emotions_plot | faceted_emotions_plot) + plot_layout(widths = c(1,4))
+
+# Save the combined plot
+tiff("accuracy_combined_left.tiff", units = "in", width = 10.5, height = 7, res = 300)
+print(final_plot)
 dev.off()
 
-# afraid 
 fear <- filter(emo, emo$emotion=="AFS")
 fear_logmodel <- glmer(correct ~ group*time + (1 | subj), data = fear, family = binomial)
 summary(fear_logmodel)
