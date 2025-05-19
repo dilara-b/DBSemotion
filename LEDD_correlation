@@ -1,0 +1,151 @@
+library(tidyverse)
+library(readxl)
+library(ggplot2)
+library(gridExtra)
+library(grid)
+
+setwd("xxx")
+set.seed(42)
+df <- read_excel("DA_LEDD_CORR.xlsx")
+
+# Task group and label definitions
+task_groups <- list(
+  "Non-Emo Impulsivity (Tasks 1+3)" = c(1, 3),
+  "Emo Impulsivity (Tasks 2+4)" = c(2, 4),
+  "Face in the Crowd (Emotional) (Task 5)" = 5,
+  "Face in the Crowd (Non-Emotional) (Task 6)" = 6,
+  "Emotion Recognition (Tasks 7+9)" = c(7, 9),
+  "Gender Recognition (Non-Emotional) (Task 8)" = 8
+)
+task_names <- names(task_groups)
+plot_colors <- c("blue", "red", "darkorange", "darkgreen", "purple", "brown")
+emotional_tasks <- c(2, 4, 5, 7, 9)
+non_emotional_tasks <- c(1, 3, 6, 8)
+
+aggregate_group <- function(data, tasks) {
+  data %>%
+    filter(task %in% tasks) %>%
+    group_by(pseudonym) %>%
+    summarize(
+      acc_FU = mean(acc_FU, na.rm = TRUE),
+      acc_BL = mean(acc_BL, na.rm = TRUE),
+      LEDD_FU = first(LEDD_FU),
+      LEDD_BL = first(LEDD_BL),
+      DA_LEDD_FU = first(`DA-LEDD_FU`),
+      DA_LEDD_BL = first(`DA-LEDD_BL`)
+    ) %>%
+    mutate(
+      Accuracy_Change = acc_FU - acc_BL,
+      LEDD_Change = LEDD_FU - LEDD_BL,
+      DA_LEDD_Change = DA_LEDD_FU - DA_LEDD_BL
+    )
+}
+
+bootstrap_correlation <- function(x, y, n_boot = 1000) {
+  corrs <- numeric(n_boot)
+  n <- length(x)
+  for (i in 1:n_boot) {
+    idx <- sample(1:n, n, replace = TRUE)
+    corrs[i] <- cor(x[idx], y[idx], use = "complete.obs")
+  }
+  return(corrs)
+}
+
+create_plots <- function(agg, med_type = "LEDD", group_name, color, bootstrap_seed = 123) {
+  if (med_type == "LEDD") {
+    x_var <- agg$LEDD_Change
+    x_lab <- "LEDD Change (mg)"
+  } else if (med_type == "DA-LEDD") {
+    x_var <- agg$DA_LEDD_Change
+    x_lab <- "DA-LEDD Change (mg)"
+  } else {
+    stop("Invalid medication type. Use 'LEDD' or 'DA-LEDD'")
+  }
+  set.seed(bootstrap_seed)
+  boot_corr <- bootstrap_correlation(x_var, agg$Accuracy_Change)
+  obs_corr <- cor(x_var, agg$Accuracy_Change, use = "complete.obs")
+  ci_corr <- quantile(boot_corr, c(0.025, 0.975))
+  
+  scatter <- ggplot(agg, aes(x = x_var, y = Accuracy_Change)) +
+    geom_point(color = color, size = 2.5) +
+    geom_smooth(method = "lm", color = color, fill = color, alpha = 0.2) +
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    geom_vline(xintercept = 0, linetype = "dashed") +
+    labs(
+      title = group_name,
+      subtitle = paste0("r = ", signif(obs_corr, 3), 
+                        ", 95% CI [", signif(ci_corr[1], 3), ", ", signif(ci_corr[2], 3), "]"),
+      x = x_lab,
+      y = "Accuracy Change"
+    ) +
+    theme_minimal(base_size = 10) +
+    theme(
+      plot.title = element_text(face = "bold", size = 10),
+      plot.subtitle = element_text(size = 8),
+      axis.title = element_text(size = 9),
+      axis.text = element_text(size = 8)
+    )
+  
+  hist <- ggplot(data.frame(r = boot_corr), aes(x = r)) +
+    geom_histogram(bins = 30, fill = color, alpha = 0.7, color = "black") +
+    geom_vline(xintercept = obs_corr, color = "red", size = 1) +
+    geom_vline(xintercept = ci_corr, color = "blue", size = 0.8, linetype = "dashed") +
+    labs(
+      title = paste0("Bootstrap: ", med_type),
+      subtitle = paste0("r = ", signif(obs_corr, 3), 
+                        ", 95% CI [", signif(ci_corr[1], 3), ", ", signif(ci_corr[2], 3), "]"),
+      x = "Bootstrap Correlation (r)",
+      y = "Frequency"
+    ) +
+    theme_minimal(base_size = 10) +
+    theme(
+      plot.title = element_text(face = "bold", size = 10),
+      plot.subtitle = element_text(size = 8),
+      axis.title = element_text(size = 8),
+      axis.text = element_text(size = 7)
+    )
+  
+  return(list(scatter = scatter, hist = hist, corr = obs_corr, ci = ci_corr))
+}
+
+pdf("~/Desktop/Correlation_LEDD_DA_AllTasks.pdf", width = 14, height = 18)
+
+# Slide 1: LEDD Change and Accuracy Change Correlation: All Tasks
+ledd_grobs <- lapply(seq_along(task_groups), function(i) {
+  group_name <- task_names[i]
+  agg <- aggregate_group(df, task_groups[[i]])
+  plots <- create_plots(agg, "LEDD", group_name, plot_colors[i], bootstrap_seed = 42 + i)
+  list(plots$scatter, plots$hist)
+})
+grid.arrange(grobs = unlist(ledd_grobs, recursive = FALSE), ncol = 2,
+             top = textGrob("Correlation between LEDD Change and Accuracy Change: All Tasks", gp = gpar(fontsize = 16, fontface = "bold")))
+
+# Slide 2: DA-LEDD Change and Accuracy Change Correlation: All Tasks
+da_grobs <- lapply(seq_along(task_groups), function(i) {
+  group_name <- task_names[i]
+  agg <- aggregate_group(df, task_groups[[i]])
+  plots <- create_plots(agg, "DA-LEDD", group_name, plot_colors[i], bootstrap_seed = 100 + i)
+  list(plots$scatter, plots$hist)
+})
+grid.arrange(grobs = unlist(da_grobs, recursive = FALSE), ncol = 2,
+             top = textGrob("Correlation between DA-LEDD Change and Accuracy Change: All Tasks", gp = gpar(fontsize = 16, fontface = "bold")))
+
+# Slide 3: LEDD Change and Accuracy Change Correlation: Emotional vs Non-Emotional Tasks
+agg_emo <- aggregate_group(df, emotional_tasks)
+agg_nonemo <- aggregate_group(df, non_emotional_tasks)
+plots_emo_ledd <- create_plots(agg_emo, "LEDD", "Emotional Tasks (2,4,5,7,9)", "darkred", bootstrap_seed = 200)
+plots_nonemo_ledd <- create_plots(agg_nonemo, "LEDD", "Non-Emotional Tasks (1,3,6,8)", "darkblue", bootstrap_seed = 201)
+grid.arrange(plots_emo_ledd$scatter, plots_nonemo_ledd$scatter,
+             plots_emo_ledd$hist, plots_nonemo_ledd$hist,
+             ncol = 2, nrow = 2,
+             top = textGrob("Correlation between LEDD Change and Accuracy Change: Emotional vs Non-Emotional Tasks", gp = gpar(fontsize = 16, fontface = "bold")))
+
+# Slide 4: DA-LEDD Change and Accuracy Change Correlation: Emotional vs Non-Emotional Tasks
+plots_emo_da <- create_plots(agg_emo, "DA-LEDD", "Emotional Tasks (2,4,5,7,9)", "darkred", bootstrap_seed = 300)
+plots_nonemo_da <- create_plots(agg_nonemo, "DA-LEDD", "Non-Emotional Tasks (1,3,6,8)", "darkblue", bootstrap_seed = 301)
+grid.arrange(plots_emo_da$scatter, plots_nonemo_da$scatter,
+             plots_emo_da$hist, plots_nonemo_da$hist,
+             ncol = 2, nrow = 2,
+             top = textGrob("Correlation between DA-LEDD Change and Accuracy Change: Emotional vs Non-Emotional Tasks", gp = gpar(fontsize = 16, fontface = "bold")))
+
+dev.off()
