@@ -9,10 +9,10 @@ library(grid)
 setwd("")
 df <- read_excel("LEDD_DALEDD_CORR_RT.xlsx")
 
-# Define task groups
+# Define conditions
 task_groups <- list(
-  "Impulsivity (Emotional)" = c(2, 4),
-  "Impulsivity (Non-Emotional)" = c(1, 3),
+  "Go/No-Go (Emotional)" = c(2, 4),
+  "Go/No-Go (Non-Emotional)" = c(1, 3),
   "Face in the Crowd (Emotional)" = 5,
   "Face in the Crowd (Non-Emotional)" = 6
 )
@@ -152,14 +152,17 @@ forest_plot <- ggplot(summary_df, aes(x = r, y = Task, color = Type)) +
   xlim(min(summary_df$CI_low) - 0.05, max(summary_df$CI_high) + 0.25) +
   theme_minimal(base_size = 12) +
   labs(
-    title = "Correlation between Medication Change and Reaction Time Change by Task Group",
-    subtitle = "Pearson's r with 95% confidence intervals - Reaction Time Change (Follow-up - Baseline) vs LEDD / DA-LEDD",
+    title = "Correlation Between Medication Change and Reaction Time Change by Task Group",
+    subtitle = "Pearson's r with 95% Confidence Intervals - Reaction Time Change (Follow-up - Baseline) vs LEDD / DA-LEDD",
     x = "Pearson Correlation (r) with Reaction Time Change [95% CI]",
     y = "Task Group",
     color = "Medication Type"
   ) +
   theme(
     legend.position = "top",
+    legend.title.align = 1,
+    legend.direction = "horizontal",
+    legend.box = "horizontal",
     text = element_text(size = 11),
     axis.text = element_text(size = 11),
     axis.title = element_text(size = 11),
@@ -170,5 +173,5 @@ forest_plot <- ggplot(summary_df, aes(x = r, y = Task, color = Type)) +
   )
 
 # Save
-ggsave("RT_LEDD_CORRELATION.pdf", forest_plot, width = 12, height = 6)
+ggsave("RT_Correlation_LEDD.pdf", forest_plot, width = 12, height = 6)
 print(forest_plot)
