@@ -172,5 +172,5 @@ forest_plot <- ggplot(summary_df, aes(x = r, y = Task, color = Type)) +
   )
 
 # Save
-ggsave("ForestPlot_CI_Aligned_Readable_With_Overall.pdf", forest_plot, width = 12, height = 6)
+ggsave("ACC_LEDD_CORRELATION.pdf", forest_plot, width = 12, height = 6)
 print(forest_plot)
