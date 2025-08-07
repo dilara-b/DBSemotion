@@ -11,8 +11,8 @@ df <- read_excel("LEDD_DALEDD_CORR.xlsx")
 
 # Define task groups
 task_groups <- list(
-  "Impulsivity (Emotional)" = c(2, 4),
-  "Impulsivity (Non-Emotional)" = c(1, 3),
+  "Go/No-Go (Emotional)" = c(2, 4),
+  "Go/No-Go (Non-Emotional)" = c(1, 3),
   "Face in the Crowd (Emotional)" = 5,
   "Face in the Crowd (Non-Emotional)" = 6,
   "Emotion Recognition (Emotional)" = c(7, 9),
@@ -154,11 +154,11 @@ forest_plot <- ggplot(summary_df, aes(x = r, y = Task, color = Type)) +
   xlim(min(summary_df$CI_low) - 0.05, max(summary_df$CI_high) + 0.25) +
   theme_minimal(base_size = 12) +
   labs(
-    title = "Correlation between Medication Change and Accuracy Change by Task Group",
-    subtitle = "Pearson's r with 95% confidence intervals - Accuracy Change (Follow-up - Baseline) vs LEDD / DA-LEDD",
+    title = "Correlation Between Medication Change and Accuracy Change by Task Group",
+    subtitle = "Pearson's r with 95% Confidence Intervals - Accuracy Change (Follow-up - Baseline) vs LEDD / DA-LEDD",
     x = "Pearson Correlation (r) with Accuracy Change [95% CI]",
     y = "Task Group",
-    color = "Medication Type"
+    color = "Medication type"
   ) +
   theme(
     legend.position = "top",
@@ -172,5 +172,5 @@ forest_plot <- ggplot(summary_df, aes(x = r, y = Task, color = Type)) +
   )
 
 # Save
-ggsave("ACC_LEDD_CORRELATION.pdf", forest_plot, width = 12, height = 6)
+ggsave("ACC_Correlation_LEDD.pdf", forest_plot, width = 12, height = 6)
 print(forest_plot)
