@@ -154,7 +154,7 @@ forest_plot <- ggplot(summary_df, aes(x = r, y = Task, color = Type)) +
   xlim(min(summary_df$CI_low) - 0.05, max(summary_df$CI_high) + 0.25) +
   theme_minimal(base_size = 12) +
   labs(
-    title = "Correlation Between Medication Change and Accuracy Change by Task Group",
+    title = "Correlation between Medication Change and Accuracy Change by Task Group",
     subtitle = "Pearson's r with 95% Confidence Intervals - Accuracy Change (Follow-up - Baseline) vs LEDD / DA-LEDD",
     x = "Pearson Correlation (r) with Accuracy Change [95% CI]",
     y = "Task Group",
