@@ -542,7 +542,9 @@ joint_tests(neutral_logmodel)
 joint_tests(neutral_logmodel, by = "group")
 
 
-##### Lollipop Plot
+
+
+#### Lollipop Plot
 
 emo_wide <- emo_summary %>%
   filter(variable == "correct") %>%
@@ -637,9 +639,9 @@ emo_plot <- ggplot(emo_wide, aes(y = group)) +
     legend.margin = margin(t = 0),
     legend.box.margin = margin (t = 0),
     plot.margin = margin(6,7,6,7),
-                  
+    
   )
 
-tiff("EmotionRecognition_Clean.tiff", width = 3000, height = 2200, res = 300)
+tiff("EmotionRecognition.tiff", width = 3000, height = 2200, res = 300)
 print(emo_plot)
 dev.off()
