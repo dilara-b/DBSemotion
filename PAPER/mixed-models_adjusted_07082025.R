@@ -338,7 +338,7 @@ emmip(fitc_logmodel, group ~ time | task, type = "response") +
     labels = c("DBS" = "DBS", "Gesund" = "HC", "IPS" = "non-DBS")
   ) +
   facet_wrap(~ task, labeller = as_labeller(
-    c("fitc_emo" = "Emo Task", "fitc_non-emo" = "Non-Emo Task")
+    c("fitc_emo" = "Emotional condition", "fitc_non-emo" = "Non-Emotional condition")
   )) +
   theme_minimal(base_size = 10) +
   theme(
@@ -364,7 +364,7 @@ fitc_rt_logmodel_emm <- emmeans(fitc_rt_logmodel,
                                 specs = ~ group * time * task,  
                                 type = "response")             
 
-###########FITC FIGURE 2
+#######FITC FIGURE 2
 
 tiff("FitC_response time.tiff", units="in", width=4, height=3, res=300)
 
@@ -379,7 +379,7 @@ emmip(fitc_rt_logmodel, group ~ time | task, type = "response") +
     labels = c("DBS" = "DBS", "Gesund" = "HC", "IPS" = "non-DBS")
   ) +
   facet_wrap(~ task, labeller = as_labeller(
-    c("fitc_emo" = "Emo Task", "fitc_non-emo" = "Non-Emo Task")
+    c("fitc_emo" = "Emotional condition", "fitc_non-emo" = "Non-Emotional condition")
   )) +
   theme_minimal(base_size = 10) +
   theme(
