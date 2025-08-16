@@ -151,32 +151,8 @@ agg_overall_nonemotional <- aggregate_group(df, overall_nonemotional_tasks)
   )
 
 
-# === Add overall row (tasks 1–9) ===
-overall_tasks <- 1:9
-agg_overall <- aggregate_group(df, overall_tasks)
-
-  # LEDD overall
-  overall_ledd <- create_plots(agg_overall, "LEDD", "Overall", "darkslategray4", bootstrap_seed = 999)
-  summary_list_overall_ledd <- data.frame(
-    Task = "Overall",
-    Type = "LEDD",
-    r = overall_ledd$corr,
-    CI_low = overall_ledd$ci[1],
-    CI_high = overall_ledd$ci[2]
-  )
-  
-  # DA-LEDD overall
-  overall_daledd <- create_plots(agg_overall, "DA-LEDD", "Overall", "deeppink3", bootstrap_seed = 1000)
-  summary_list_overall_daledd <- data.frame(
-    Task = "Overall",
-    Type = "DA-LEDD",
-    r = overall_daledd$corr,
-    CI_low = overall_daledd$ci[1],
-    CI_high = overall_daledd$ci[2]
-  )
-
 # Combine all
-summary_df <- bind_rows(summary_list_overall_ledd, summary_list_overall_daledd, summary_list_overall_emotional_ledd, summary_list_overall_emotional_daledd, summary_list_overall_nonemotional_ledd ,summary_list_overall_nonemotional_daledd, summary_df)
+summary_df <- bind_rows(summary_list_overall_emotional_ledd, summary_list_overall_emotional_daledd, summary_list_overall_nonemotional_ledd ,summary_list_overall_nonemotional_daledd, summary_df)
 
 # Add labels and placement for text
 summary_df <- summary_df %>%
