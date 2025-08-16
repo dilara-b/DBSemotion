@@ -102,32 +102,81 @@ for (i in seq_along(task_groups)) {
 
 summary_df <- bind_rows(summary_list)
 
+# === Add Emotional Overall (Task 2,4,5,7,9)
+overall_emotional_tasks <- c(2,4,5,7,9)
+agg_overall_emotional <- aggregate_group(df, overall_emotional_tasks)
+
+  # LEDD overall emotional
+  overall_emotional_ledd <- create_plots(agg_overall_emotional, "LEDD", "Overall Emotional", "darkslategray4", bootstrap_seed = 999)
+  summary_list_overall_emotional_ledd <- data.frame(
+    Task = "Overall Emotional",
+    Type = "LEDD",
+    r = overall_emotional_ledd$corr,
+    CI_low = overall_emotional_ledd$ci[1],
+    CI_high = overall_emotional_ledd$ci[2]
+  )
+  
+  # DA-LEDD overall emotional
+  overall_emotional_daledd <- create_plots(agg_overall_emotional, "DA-LEDD", "Overall Emotional", "deeppink3", bootstrap_seed = 1000)
+  summary_list_overall_emotional_daledd <- data.frame(
+    Task = "Overall Emotional",
+    Type = "DA-LEDD",
+    r = overall_emotional_daledd$corr,
+    CI_low = overall_emotional_daledd$ci[1],
+    CI_high = overall_emotional_daledd$ci[2]
+  )
+
+# === Add Non-Emotional Overall (Task 1,3,6,8)
+overall_nonemotional_tasks <- c(1,3,6,8)
+agg_overall_nonemotional <- aggregate_group(df, overall_nonemotional_tasks)
+  
+  # LEDD overall non-emotional
+  overall_nonemotional_ledd <- create_plots(agg_overall_nonemotional, "LEDD", "Overall Non-Emotional", "darkslategray4", bootstrap_seed = 999)
+  summary_list_overall_nonemotional_ledd <- data.frame(
+    Task = "Overall Non-Emotional",
+    Type = "LEDD",
+    r = overall_nonemotional_ledd$corr,
+    CI_low = overall_nonemotional_ledd$ci[1],
+    CI_high = overall_nonemotional_ledd$ci[2]
+  )
+  
+  # DA-LEDD overall non-emotional
+  overall_nonemotional_daledd <- create_plots(agg_overall_nonemotional, "DA-LEDD", "Overall Non-Emotional", "deeppink3", bootstrap_seed = 1000)
+  summary_list_overall_nonemotional_daledd <- data.frame(
+    Task = "Overall Non-Emotional",
+    Type = "DA-LEDD",
+    r = overall_nonemotional_daledd$corr,
+    CI_low = overall_nonemotional_daledd$ci[1],
+    CI_high = overall_nonemotional_daledd$ci[2]
+  )
+
+
 # === Add overall row (tasks 1–9) ===
 overall_tasks <- 1:9
 agg_overall <- aggregate_group(df, overall_tasks)
 
-# LEDD overall
-overall_ledd <- create_plots(agg_overall, "LEDD", "Overall", "darkslategray4", bootstrap_seed = 999)
-summary_list_overall_ledd <- data.frame(
-  Task = "Overall",
-  Type = "LEDD",
-  r = overall_ledd$corr,
-  CI_low = overall_ledd$ci[1],
-  CI_high = overall_ledd$ci[2]
-)
-
-# DA-LEDD overall
-overall_daledd <- create_plots(agg_overall, "DA-LEDD", "Overall", "deeppink3", bootstrap_seed = 1000)
-summary_list_overall_daledd <- data.frame(
-  Task = "Overall",
-  Type = "DA-LEDD",
-  r = overall_daledd$corr,
-  CI_low = overall_daledd$ci[1],
-  CI_high = overall_daledd$ci[2]
-)
+  # LEDD overall
+  overall_ledd <- create_plots(agg_overall, "LEDD", "Overall", "darkslategray4", bootstrap_seed = 999)
+  summary_list_overall_ledd <- data.frame(
+    Task = "Overall",
+    Type = "LEDD",
+    r = overall_ledd$corr,
+    CI_low = overall_ledd$ci[1],
+    CI_high = overall_ledd$ci[2]
+  )
+  
+  # DA-LEDD overall
+  overall_daledd <- create_plots(agg_overall, "DA-LEDD", "Overall", "deeppink3", bootstrap_seed = 1000)
+  summary_list_overall_daledd <- data.frame(
+    Task = "Overall",
+    Type = "DA-LEDD",
+    r = overall_daledd$corr,
+    CI_low = overall_daledd$ci[1],
+    CI_high = overall_daledd$ci[2]
+  )
 
 # Combine all
-summary_df <- bind_rows(summary_list_overall_ledd, summary_list_overall_daledd, summary_df)
+summary_df <- bind_rows(summary_list_overall_ledd, summary_list_overall_daledd, summary_list_overall_emotional_ledd, summary_list_overall_emotional_daledd, summary_list_overall_nonemotional_ledd ,summary_list_overall_nonemotional_daledd, summary_df)
 
 # Add labels and placement for text
 summary_df <- summary_df %>%
@@ -137,7 +186,7 @@ summary_df <- summary_df %>%
   )
 
 # Reorder factor levels (Overall at top)
-summary_df$Task <- factor(summary_df$Task, levels = c("Overall", rev(task_names)))
+summary_df$Task <- factor(summary_df$Task, levels = c("Overall Non-Emotional", "Overall Emotional", rev(task_names)))
 summary_df$Type <- factor(summary_df$Type, levels = c("LEDD", "DA-LEDD"))
 
 # === Forest Plot ===
