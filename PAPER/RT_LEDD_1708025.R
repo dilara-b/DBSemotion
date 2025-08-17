@@ -6,7 +6,7 @@ library(gridExtra)
 library(grid)
 
 # Set working directory and load data
-setwd("/Users/dilara/Desktop/LEDD")
+setwd("")
 df <- read_excel("LEDD_DALEDD_CORR_RT.xlsx")
 
 # Define conditions
